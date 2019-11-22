@@ -1,0 +1,8 @@
+{
+  "PAGES": {
+      "HOME": {
+          "UPLOAD_FILE": "Sélectionner un dossier",
+          "IMAGE_CURRENT_ALT": "Current image shown"
+      }
+  }
+}

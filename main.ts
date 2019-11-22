@@ -18,9 +18,10 @@ function createWindow(): BrowserWindow {
     width: size.width,
     height: size.height,
     webPreferences: {
+      webSecurity: false,
       nodeIntegration: true,
       allowRunningInsecureContent: (serve) ? true : false,
-    },
+    }
   });
 
   if (serve) {

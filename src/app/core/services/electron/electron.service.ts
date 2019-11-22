@@ -15,6 +15,7 @@ export class ElectronService {
   remote: typeof remote;
   childProcess: typeof childProcess;
   fs: typeof fs;
+  electron;
 
   get isElectron(): boolean {
     return window && window.process && window.process.type;
@@ -23,12 +24,18 @@ export class ElectronService {
   constructor() {
     // Conditional imports
     if (this.isElectron) {
-      this.ipcRenderer = window.require('electron').ipcRenderer;
-      this.webFrame = window.require('electron').webFrame;
-      this.remote = window.require('electron').remote;
+      this.electron = window.require('electron');
+      this.ipcRenderer = this.electron.ipcRenderer;
+      this.webFrame = this.electron.webFrame;
+      this.remote = this.electron.remote;
 
       this.childProcess = window.require('child_process');
       this.fs = window.require('fs');
     }
+  }
+
+  setFullScreen(value: boolean) {
+    const window = this.electron.remote.getCurrentWindow();
+    window.setFullScreen(value);
   }
 }
