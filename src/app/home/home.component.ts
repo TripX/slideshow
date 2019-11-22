@@ -17,13 +17,15 @@ export class HomeComponent implements OnInit {
   private imagesAreLoading: boolean;
 
   constructor(public electronService: ElectronService) {
+    this.imagesSrc = [];
   }
 
   ngOnInit(): void {
   }
 
   selectFolder(event: Event) {
-    this.stopSlideShow();
+    this.electronService.setFullScreen(false);
+    this.stopSlideShow(null);
     this.setPathFolder(event);
     this.startSlideShow();
   }
@@ -50,26 +52,36 @@ export class HomeComponent implements OnInit {
   setPathFolder(event: any) {
     if (event && event.target && event.target.files.length > 0) {
       const firstImageSrc = event.target.files[0].path;
-      this.pathFolder = firstImageSrc.substring(0, firstImageSrc.lastIndexOf('/') + 1);
+
+      // TODO Sous linux c'est des slash !
+      this.pathFolder = firstImageSrc.substring(0, firstImageSrc.lastIndexOf("\\") + 1);
       this.updateFolderImage();
     }
   }
 
   updateFolderImage() {
     if (this.pathFolder) {
-      this.imagesSrc = this.electronService.fs.readdirSync(this.pathFolder, {withFileTypes: true})
+      this.electronService.fs.readdirSync(this.pathFolder, {withFileTypes: true})
         .filter(item => !item.isDirectory())
-        .map(item => 'file:///' + this.pathFolder + item.name);
+        .map(item => this.imagesSrc.push('file:///' + this.pathFolder + item.name));
       this.imagesAreLoading = false;
     }
   }
 
-  @HostListener('document:keydown.escape', ['$event.target'])
-  stopSlideShow() {
+  @HostListener('document:keydown.escape', ['$event'])
+  @HostListener('document:keydown.f11', ['$event'])
+  stopSlideShow(event: KeyboardEvent) {
     if (this.interval) {
       clearInterval(this.interval);
     }
-    this.electronService.setFullScreen(false);
+
+    // Prevent default F11 to put in fullscreen
+    if (event && event.key !== 'F11') {
+      this.electronService.setFullScreen(false);
+    }
+
+    this.imagesSrc = [];
+    this.imagesAreLoading = false;
     this.currentImageSrc = null;
   }
 
