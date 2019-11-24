@@ -44,9 +44,16 @@ export class HomeComponent implements OnInit {
       if (this.currentIndexImage > this.imagesSrc.length - 1) {
         this.currentIndexImage = 0;
       }
-
-      this.currentImageSrc = this.imagesSrc[this.currentIndexImage];
+      this.showNextImage();
     }
+  }
+
+  @HostListener('click', ['$event'])
+  showNextImage(eventClick = null) {
+    if (eventClick) {
+      this.currentIndexImage++;
+    }
+    this.currentImageSrc = this.imagesSrc[this.currentIndexImage];
   }
 
   setPathFolder(event: any) {
@@ -63,7 +70,9 @@ export class HomeComponent implements OnInit {
     if (this.pathFolder) {
       this.electronService.fs.readdirSync(this.pathFolder, {withFileTypes: true})
         .filter(item => !item.isDirectory())
-        .map(item => this.imagesSrc.push('file:///' + this.pathFolder + item.name));
+        .map(item => {
+          this.imagesSrc.push('file:///' + this.pathFolder + item.name);
+        });
       this.imagesAreLoading = false;
     }
   }
