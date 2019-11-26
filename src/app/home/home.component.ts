@@ -9,18 +9,20 @@ import Timeout = NodeJS.Timeout;
 })
 export class HomeComponent implements OnInit {
 
-  private currentImageSrc: string;
+  public currentImageSrc: string;
   private imagesSrc: string[];
   private pathFolder: string;
   private currentIndexImage: number;
   private interval: Timeout;
-  private imagesAreLoading: boolean;
+  public imagesAreLoading: boolean;
+  private speedSlideShow: number;
 
   constructor(public electronService: ElectronService) {
     this.imagesSrc = [];
   }
 
   ngOnInit(): void {
+    this.speedSlideShow = 3000;
   }
 
   selectFolder(event: Event) {
@@ -34,26 +36,29 @@ export class HomeComponent implements OnInit {
     this.electronService.setFullScreen(true);
     this.currentIndexImage = -1;
     this.imagesAreLoading = true;
-    this.interval = setInterval(() => this.changeImage(), 3000);
-  }
-
-  changeImage() {
-    this.updateFolderImage();
-    if (this.imagesSrc && this.imagesSrc.length > 0) {
-      this.currentIndexImage++;
-      if (this.currentIndexImage > this.imagesSrc.length - 1) {
-        this.currentIndexImage = 0;
-      }
-      this.showNextImage();
-    }
+    this.interval = setInterval(() => {
+      this.updateFolderImage();
+      this.showImage();
+    }, this.speedSlideShow);
   }
 
   @HostListener('click', ['$event'])
-  showNextImage(eventClick = null) {
-    if (eventClick) {
-      this.currentIndexImage++;
+  @HostListener('document:keydown.ArrowRight', ['$event'])
+  showImage(event = null, previous = false) {
+    if (this.imagesSrc && this.imagesSrc.length > 0) {
+      previous ? this.currentIndexImage-- : this.currentIndexImage++;
+      if (this.currentIndexImage < 0) {
+        this.currentIndexImage = this.imagesSrc.length - 1;
+      } else if (this.currentIndexImage > this.imagesSrc.length - 1) {
+        this.currentIndexImage = 0;
+      }
+      this.currentImageSrc = this.imagesSrc[this.currentIndexImage];
     }
-    this.currentImageSrc = this.imagesSrc[this.currentIndexImage];
+  }
+
+  @HostListener('document:keydown.ArrowLeft', ['$event'])
+  showPreviousImage() {
+    this.showImage(null, true);
   }
 
   setPathFolder(event: any) {
@@ -70,11 +75,10 @@ export class HomeComponent implements OnInit {
 
   updateFolderImage() {
     if (this.pathFolder) {
-      this.electronService.fs.readdirSync(this.pathFolder, {withFileTypes: true})
+      this.imagesSrc = this.electronService.fs.readdirSync(this.pathFolder, {withFileTypes: true})
         .filter(item => !item.isDirectory())
-        .map(item => {
-          this.imagesSrc.push('file:///' + this.pathFolder + item.name);
-        });
+        .map(item => 'file:///' + this.pathFolder + item.name);
+
       this.imagesAreLoading = false;
     }
   }

@@ -1,13 +1,14 @@
 {
-  "name": "angular-electron",
-  "version": "6.4.0",
-  "description": "Angular 8 with Electron (Typescript + SASS + Hot Reload)",
-  "homepage": "https://github.com/maximegris/angular-electron",
+  "name": "slideshow",
+  "version": "0.1.0",
+  "description": "It's a slideshow !",
+  "homepage": "https://github.com/TripX/slideshow",
   "author": {
-    "name": "Maxime GRIS",
-    "email": "maxime.gris@gmail.com"
+    "name": "Bastien Rousseau",
+    "email": "rousseau.bastien@gmail.com"
   },
   "keywords": [
+    "slideshow",
     "angular",
     "angular 8",
     "electron",

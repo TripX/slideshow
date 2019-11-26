@@ -1,14 +1,14 @@
-<div class="container" *ngIf="!currentImageSrc">
+<div id="select-folder" class="container" *ngIf="!currentImageSrc">
   <ng-container *ngIf="!imagesAreLoading">
-    <label for="file-upload" class="custom-file-upload">
+    <label id="label-file-upload" for="file-upload" class="custom-file-upload">
       <i class="fa fa-cloud-upload"></i> {{'PAGES.HOME.UPLOAD_FILE' | translate}}
     </label>
     <input id="file-upload" type="file" (change)="selectFolder($event)"/>
   </ng-container>
 
-  <div *ngIf="imagesAreLoading" class="loader"></div>
+  <div id="image-loading" *ngIf="imagesAreLoading" class="loader"></div>
 </div>
 
-<div *ngIf="currentImageSrc" class="image-container">
+<div id="image-fullscreen" *ngIf="currentImageSrc" class="image-container">
   <img class="image" [alt]="'PAGES.HOME.IMAGE_CURRENT_ALT' | translate" [src]="currentImageSrc"/>
 </div>
