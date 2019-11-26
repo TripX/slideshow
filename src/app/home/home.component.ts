@@ -59,11 +59,13 @@ export class HomeComponent implements OnInit {
   setPathFolder(event: any) {
     if (event && event.target && event.target.files.length > 0) {
       const firstImageSrc = event.target.files[0].path;
-
-      // TODO Sous linux c'est des slash !
-      this.pathFolder = firstImageSrc.substring(0, firstImageSrc.lastIndexOf("\\") + 1);
+      this.pathFolder = firstImageSrc.substring(0, firstImageSrc.lastIndexOf(this.getPathSeparator()) + 1);
       this.updateFolderImage();
     }
+  }
+
+  getPathSeparator(): string {
+    return this.electronService.isWindows ? "\\" : "/";
   }
 
   updateFolderImage() {
