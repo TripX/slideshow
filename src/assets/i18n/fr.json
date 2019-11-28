@@ -1,7 +1,8 @@
 {
   "PAGES": {
       "HOME": {
-          "UPLOAD_FILE": "Sélectionner un dossier",
+          "LABEL_SPEED_SLIDESHOW": "Vitesse du diaporama",
+          "LABEL_UPLOAD_FILE": "Sélectionner un dossier",
           "IMAGE_CURRENT_ALT": "Current image shown"
       }
   }

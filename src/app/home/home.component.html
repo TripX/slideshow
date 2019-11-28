@@ -1,7 +1,15 @@
 <div id="select-folder" class="container" *ngIf="!currentImageSrc">
   <ng-container *ngIf="!imagesAreLoading">
-    <label id="label-file-upload" for="file-upload" class="custom-file-upload">
-      <i class="fa fa-cloud-upload"></i> {{'PAGES.HOME.UPLOAD_FILE' | translate}}
+
+    <div class="container-speed-slideshow">
+      <input id="speed-slideshow" class="input-speed-slideshow" type="number" [(ngModel)]="speedSlideShow">
+      <label for="speed-slideshow" class="label-speed-slideshow">{{'PAGES.HOME.LABEL_SPEED_SLIDESHOW' | translate}}</label>
+      <span class="bar"></span>
+    </div>
+
+
+    <label id="label-file-upload" for="file-upload" class="label-file-upload">
+      {{'PAGES.HOME.LABEL_UPLOAD_FILE' | translate}}
     </label>
     <input id="file-upload" type="file" (change)="selectFolder($event)"/>
   </ng-container>
@@ -9,6 +17,6 @@
   <div id="image-loading" *ngIf="imagesAreLoading" class="loader"></div>
 </div>
 
-<div id="image-fullscreen" *ngIf="currentImageSrc" class="image-container">
+<div id="image-fullscreen" *ngIf="currentImageSrc">
   <img class="image" [alt]="'PAGES.HOME.IMAGE_CURRENT_ALT' | translate" [src]="currentImageSrc"/>
 </div>

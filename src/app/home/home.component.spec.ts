@@ -36,7 +36,7 @@ describe('HomeComponent', () => {
   it('should render a label tag', async(() => {
     const compiled = fixture.debugElement.nativeElement;
     expect(compiled.querySelector('#label-file-upload').textContent).toContain(
-      'PAGES.HOME.UPLOAD_FILE'
+      'PAGES.HOME.LABEL_UPLOAD_FILE'
     );
   }));
 
