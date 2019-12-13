@@ -14,9 +14,12 @@ export class ElectronService {
   ipcRenderer: typeof ipcRenderer;
   webFrame: typeof webFrame;
   remote: typeof remote;
+
   childProcess: typeof childProcess;
   fs: typeof fs;
   process: typeof process;
+
+  private idPreventDisplayToSleep: number;
 
   get isElectron(): boolean {
     return window && window.process && window.process.type;
@@ -32,13 +35,24 @@ export class ElectronService {
       this.ipcRenderer = window.require('electron').ipcRenderer;
       this.webFrame = window.require('electron').webFrame;
       this.remote = window.require('electron').remote;
+
       this.childProcess = window.require('child_process');
       this.fs = window.require('fs');
       this.process = window.require('process');
     }
   }
 
-  setFullScreen(value: boolean): boolean {
-    return window && window.require('electron').remote.getCurrentWindow().setFullScreen(value);
+  preventDisplayToSleep() {
+    this.idPreventDisplayToSleep = window && this.remote.powerSaveBlocker.start('prevent-display-sleep');
+  }
+
+  stopPreventDisplayToSleep() {
+    if (this.idPreventDisplayToSleep) {
+      window && this.remote.powerSaveBlocker.stop(this.idPreventDisplayToSleep);
+    }
+  }
+
+  setFullScreen(value: boolean) {
+    return window && this.remote.getCurrentWindow().setFullScreen(value);
   }
 }

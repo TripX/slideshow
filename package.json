@@ -1,6 +1,6 @@
 {
   "name": "slideshow",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "It's a slideshow !",
   "homepage": "https://github.com/TripX/slideshow",
   "author": {
@@ -34,7 +34,7 @@
     "electron:linux": "npm run build:prod && electron-builder build --linux",
     "electron:windows": "npm run build:prod && electron-builder build --windows",
     "electron:mac": "npm run build:prod && electron-builder build --mac",
-    "test": "ng test",
+    "test": "ng test --code-coverage",
     "e2e": "npm run build:prod && mocha --timeout 300000 --require ts-node/register e2e/**/*.spec.ts",
     "version": "conventional-changelog -i CHANGELOG.md -s -r 0 && git add CHANGELOG.md",
     "lint": "ng lint"

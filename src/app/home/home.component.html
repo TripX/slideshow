@@ -2,11 +2,10 @@
   <ng-container *ngIf="!imagesAreLoading">
 
     <div class="container-speed-slideshow">
-      <input id="speed-slideshow" class="input-speed-slideshow" type="number" [(ngModel)]="speedSlideShow">
       <label for="speed-slideshow" class="label-speed-slideshow">{{'PAGES.HOME.LABEL_SPEED_SLIDESHOW' | translate}}</label>
+      <input id="speed-slideshow" class="input-speed-slideshow" type="number" (input)="setSpeedSlideShow($event)" [(ngModel)]="speedSlideShowInSeconds">
       <span class="bar"></span>
     </div>
-
 
     <label id="label-file-upload" for="file-upload" class="label-file-upload">
       {{'PAGES.HOME.LABEL_UPLOAD_FILE' | translate}}

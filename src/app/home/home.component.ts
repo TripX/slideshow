@@ -10,19 +10,19 @@ import Timeout = NodeJS.Timeout;
 export class HomeComponent implements OnInit {
 
   public currentImageSrc: string;
+  public imagesAreLoading: boolean;
+  public speedSlideShowInSeconds: number;
   private imagesSrc: string[];
   private pathFolder: string;
   private currentIndexImage: number;
   private interval: Timeout;
-  public imagesAreLoading: boolean;
-  private speedSlideShow: number;
 
   constructor(public electronService: ElectronService) {
-    this.imagesSrc = [];
-    this.speedSlideShow = 3000;
   }
 
   ngOnInit(): void {
+    this.imagesSrc = [];
+    this.speedSlideShowInSeconds = 3;
   }
 
   selectFolder(event: Event) {
@@ -32,14 +32,21 @@ export class HomeComponent implements OnInit {
     this.startSlideShow();
   }
 
+  setSpeedSlideShow(event: Event) {
+    if (event && event.target) {
+      const target = event.target as HTMLInputElement;
+      this.speedSlideShowInSeconds = target.valueAsNumber;
+    }
+  }
+
   private startSlideShow() {
+    this.electronService.preventDisplayToSleep();
     this.electronService.setFullScreen(true);
-    this.currentIndexImage = -1;
     this.imagesAreLoading = true;
     this.interval = setInterval(() => {
       this.updateFolderImage();
       this.showImage();
-    }, this.speedSlideShow);
+    }, this.speedSlideShowInSeconds * 1000);
   }
 
   @HostListener('document:keydown.escape', ['$event'])
@@ -57,6 +64,7 @@ export class HomeComponent implements OnInit {
     this.imagesSrc = [];
     this.imagesAreLoading = false;
     this.currentImageSrc = null;
+    this.electronService.stopPreventDisplayToSleep();
   }
 
   @HostListener('click', ['$event'])
@@ -81,18 +89,10 @@ export class HomeComponent implements OnInit {
   }
 
   private detectOrientation() {
-    let orientation,
-      img = new Image();
+    let img = new Image();
 
     img.onload = function () {
-      if (img.naturalWidth > img.naturalHeight) {
-        orientation = 'landscape';
-      } else if (img.naturalWidth < img.naturalHeight) {
-        orientation = 'portrait';
-      } else {
-        orientation = 'even';
-      }
-      console.log(orientation);
+      // TODO found orientation
     };
     img.src = this.currentImageSrc;
   }
@@ -101,7 +101,7 @@ export class HomeComponent implements OnInit {
     if (event && event.target && event.target.files.length > 0) {
       const firstImageSrc = event.target.files[0].path;
       this.pathFolder = firstImageSrc.substring(0, firstImageSrc.lastIndexOf(this.getPathSeparator()) + 1);
-      this.updateFolderImage();
+      this.updateFolderImage(firstImageSrc);
     }
   }
 
@@ -109,11 +109,16 @@ export class HomeComponent implements OnInit {
     return this.electronService.isWindows ? "\\" : "/";
   }
 
-  private updateFolderImage() {
+  private updateFolderImage(firstImage = null) {
     if (this.pathFolder) {
+      const startPath = 'file:///';
       this.imagesSrc = this.electronService.fs.readdirSync(this.pathFolder, {withFileTypes: true})
         .filter(item => !item.isDirectory())
-        .map(item => 'file:///' + this.pathFolder + item.name);
+        .map(item => startPath + this.pathFolder + item.name);
+
+      if (firstImage) {
+        this.currentIndexImage = this.imagesSrc.indexOf(startPath + firstImage) - 1;
+      }
 
       this.imagesAreLoading = false;
     }

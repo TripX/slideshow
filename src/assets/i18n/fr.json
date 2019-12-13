@@ -1,9 +1,9 @@
 {
   "PAGES": {
       "HOME": {
-          "LABEL_SPEED_SLIDESHOW": "Vitesse du diaporama",
-          "LABEL_UPLOAD_FILE": "Sélectionner un dossier",
-          "IMAGE_CURRENT_ALT": "Current image shown"
+          "LABEL_SPEED_SLIDESHOW": "Vitesse du diaporama en seconde",
+          "LABEL_UPLOAD_FILE": "Commencer",
+          "IMAGE_CURRENT_ALT": "Image en pleine écran"
       }
   }
 }

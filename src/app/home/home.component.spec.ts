@@ -1,7 +1,8 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
+import {async, ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { HomeComponent } from './home.component';
-import { TranslateModule } from '@ngx-translate/core';
+import {HomeComponent} from './home.component';
+import {TranslateModule} from '@ngx-translate/core';
+import {ElectronService} from "../core/services";
 
 describe('HomeComponent', () => {
   let component: HomeComponent;
@@ -10,6 +11,7 @@ describe('HomeComponent', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       declarations: [HomeComponent],
+      providers: [ElectronService],
       imports: [TranslateModule.forRoot()]
     }).compileComponents();
   }));
@@ -40,7 +42,7 @@ describe('HomeComponent', () => {
     );
   }));
 
-  it('should render an input file-upload', async( () => {
+  it('should render an input file-upload', async(() => {
     const compiled = fixture.debugElement.nativeElement;
     expect(compiled.querySelector('#file-upload')).toBeTruthy();
   }));
