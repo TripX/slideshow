@@ -1,6 +1,8 @@
 import {Component, HostListener, OnInit} from '@angular/core';
 import {ElectronService} from "../core/services";
 import Timeout = NodeJS.Timeout;
+import {FileChangeEvent} from "@angular/compiler-cli/src/perform_watch";
+import InputEvent = Electron.InputEvent;
 
 @Component({
   selector: 'app-home',
@@ -69,7 +71,7 @@ export class HomeComponent implements OnInit {
 
   @HostListener('click', ['$event'])
   @HostListener('document:keydown.ArrowRight', ['$event'])
-  showImage(event = null, previous = false) {
+  showImage(event: Event = null, previous = false) {
     if (this.imagesSrc && this.imagesSrc.length > 0) {
       previous ? this.currentIndexImage-- : this.currentIndexImage++;
       if (this.currentIndexImage < 0) {
@@ -97,9 +99,10 @@ export class HomeComponent implements OnInit {
     img.src = this.currentImageSrc;
   }
 
-  private setPathFolder(event: any) {
-    if (event && event.target && event.target.files.length > 0) {
-      const firstImageSrc = event.target.files[0].path;
+  private setPathFolder(event: Event) {
+    const target = event.target as HTMLInputElement;
+    if (target && target.files.length > 0) {
+      const firstImageSrc = target.files[0].path;
       this.pathFolder = firstImageSrc.substring(0, firstImageSrc.lastIndexOf(this.getPathSeparator()) + 1);
       this.updateFolderImage(firstImageSrc);
     }
@@ -109,15 +112,15 @@ export class HomeComponent implements OnInit {
     return this.electronService.isWindows ? "\\" : "/";
   }
 
-  private updateFolderImage(firstImage = null) {
+  private updateFolderImage(firstImageSrc: string = null) {
     if (this.pathFolder) {
       const startPath = 'file:///';
       this.imagesSrc = this.electronService.fs.readdirSync(this.pathFolder, {withFileTypes: true})
         .filter(item => !item.isDirectory())
         .map(item => startPath + this.pathFolder + item.name);
 
-      if (firstImage) {
-        this.currentIndexImage = this.imagesSrc.indexOf(startPath + firstImage) - 1;
+      if (firstImageSrc) {
+        this.currentIndexImage = this.imagesSrc.indexOf(startPath + firstImageSrc) - 1;
       }
 
       this.imagesAreLoading = false;
