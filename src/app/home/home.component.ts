@@ -1,8 +1,6 @@
 import {Component, HostListener, OnInit} from '@angular/core';
 import {ElectronService} from "../core/services";
 import Timeout = NodeJS.Timeout;
-import {FileChangeEvent} from "@angular/compiler-cli/src/perform_watch";
-import InputEvent = Electron.InputEvent;
 
 @Component({
   selector: 'app-home',
@@ -53,7 +51,7 @@ export class HomeComponent implements OnInit {
 
   @HostListener('document:keydown.escape', ['$event'])
   @HostListener('document:keydown.f11', ['$event'])
-  stopSlideShow(event: KeyboardEvent) {
+  stopSlideShow(event: KeyboardEvent | null) {
     if (this.interval) {
       clearInterval(this.interval);
     }
@@ -65,13 +63,13 @@ export class HomeComponent implements OnInit {
 
     this.imagesSrc = [];
     this.imagesAreLoading = false;
-    this.currentImageSrc = null;
+    this.currentImageSrc = "";
     this.electronService.stopPreventDisplayToSleep();
   }
 
   @HostListener('click', ['$event'])
   @HostListener('document:keydown.ArrowRight', ['$event'])
-  showImage(event: Event = null, previous = false) {
+  showImage(event: Event | null = null, previous = false) {
     if (this.imagesSrc && this.imagesSrc.length > 0) {
       previous ? this.currentIndexImage-- : this.currentIndexImage++;
       if (this.currentIndexImage < 0) {
@@ -101,25 +99,21 @@ export class HomeComponent implements OnInit {
 
   private setPathFolder(event: Event) {
     const target = event.target as HTMLInputElement;
-    if (target && target.files.length > 0) {
+    if (target && target.files && target.files.length > 0) {
       const firstImageSrc = target.files[0].path;
-      this.pathFolder = firstImageSrc.substring(0, firstImageSrc.lastIndexOf(this.getPathSeparator()) + 1);
+      this.pathFolder = firstImageSrc.substring(0, firstImageSrc.lastIndexOf(this.electronService.pathSeparator) + 1);
       this.updateFolderImage(firstImageSrc);
     }
   }
 
-  private getPathSeparator(): string {
-    return this.electronService.isWindows ? "\\" : "/";
-  }
-
-  private updateFolderImage(firstImageSrc: string = null) {
+  private updateFolderImage(firstImageSrc: string = "") {
     if (this.pathFolder) {
       const startPath = 'file:///';
       this.imagesSrc = this.electronService.fs.readdirSync(this.pathFolder, {withFileTypes: true})
         .filter(item => !item.isDirectory())
         .map(item => startPath + this.pathFolder + item.name);
 
-      if (firstImageSrc) {
+      if (firstImageSrc.length > 0) {
         this.currentIndexImage = this.imagesSrc.indexOf(startPath + firstImageSrc) - 1;
       }
 

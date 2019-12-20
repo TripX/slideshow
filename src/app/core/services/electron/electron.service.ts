@@ -29,6 +29,10 @@ export class ElectronService {
     return window && this.process && this.process.platform === 'win32';
   }
 
+  get pathSeparator(): string {
+    return this.isWindows ? "\\" : "/";
+  }
+
   constructor() {
     // Conditional imports
     if (this.isElectron) {
