@@ -15,7 +15,7 @@ export class HomeComponent implements OnInit {
   private imagesSrc: string[];
   private pathFolder: string;
   private currentIndexImage: number;
-  private interval: Timeout;
+  private intervalBeforeShowingImage: Timeout;
 
   constructor(public electronService: ElectronService) {
   }
@@ -43,7 +43,9 @@ export class HomeComponent implements OnInit {
     this.electronService.preventDisplayToSleep();
     this.electronService.setFullScreen(true);
     this.imagesAreLoading = true;
-    this.interval = setInterval(() => {
+
+    // TODO see rxjs interval(1000)
+    this.intervalBeforeShowingImage = setInterval(() => {
       this.updateFolderImage();
       this.showImage();
     }, this.speedSlideShowInSeconds * 1000);
@@ -52,8 +54,8 @@ export class HomeComponent implements OnInit {
   @HostListener('document:keydown.escape', ['$event'])
   @HostListener('document:keydown.f11', ['$event'])
   stopSlideShow(event: KeyboardEvent | null) {
-    if (this.interval) {
-      clearInterval(this.interval);
+    if (this.intervalBeforeShowingImage) {
+      clearInterval(this.intervalBeforeShowingImage);
     }
 
     // Prevent default F11 to put in fullscreen
@@ -107,11 +109,20 @@ export class HomeComponent implements OnInit {
   }
 
   private updateFolderImage(firstImageSrc: string = "") {
+
     if (this.pathFolder) {
       const startPath = 'file:///';
+
       this.imagesSrc = this.electronService.fs.readdirSync(this.pathFolder, {withFileTypes: true})
         .filter(item => !item.isDirectory())
-        .map(item => startPath + this.pathFolder + item.name);
+        .map(file => {
+          return {
+            name: startPath + this.pathFolder + file.name,
+            time: this.electronService.fs.statSync(this.pathFolder + '/' + file.name).mtime.getTime()
+          }
+        })
+        .sort((a, b) => a.time - b.time)
+        .map((v) => v.name);
 
       if (firstImageSrc.length > 0) {
         this.currentIndexImage = this.imagesSrc.indexOf(startPath + firstImageSrc) - 1;
