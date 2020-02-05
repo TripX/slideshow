@@ -1,20 +1,61 @@
 $trans-time: 300ms;
 $width: 200px;
 
-.container {
+.label-button {
+  background-color: rgba(88, 88, 88, 0.6);
+  padding: 18px;
+  cursor: pointer;
+  font-size: 25px;
+  border-radius: 8px;
+
+  &.preview {
+    font-size: 20px;
+    padding: 15px;
+    margin: 10px
+  }
+
+  &:hover {
+    background: rgba(73, 84, 126, 1);
+    color: white;
+    border-color: white;
+  }
+}
+
+.home-container {
   height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: url(../../assets/background.jpg) no-repeat center fixed;
   -webkit-background-size: cover; /* pour anciens Chrome et Safari */
   background-size: cover; /* version standardisée */
-  color: white;
+  color: antiquewhite;
+  background-color: #191919e6;
+
+  .button-container {
+    display: flex;
+    margin: auto;
+  }
+
+  .preview-container {
+    height: 50vh;
+    display: flex;
+    flex-direction: row;
+
+    .current-image {
+      margin: 10px;
+      height: 50%;
+    }
+
+    .previous-image, .next-image {
+      height: 25%;
+    }
+  }
 
   .container-speed-slideshow {
-    position: relative;
     margin: 45px 0;
+    height: 45vh;
+
     .input-speed-slideshow {
       background: none;
       color: white;
@@ -27,12 +68,14 @@ $width: 200px;
       &:focus {
         outline: none;
       }
+
       &:focus ~ label,
       &:valid ~ label {
         top: -20px;
         font-size: 20px;
         color: #c6c6c6;
       }
+
       &:focus ~ .bar:before {
         width: $width;
       }
@@ -49,6 +92,7 @@ $width: 200px;
       position: relative;
       display: block;
       width: $width;
+
       &:before {
         content: '';
         height: 2px;
@@ -67,35 +111,41 @@ $width: 200px;
     display: none;
   }
 
-  .label-file-upload {
-    background-color: #af4545;
-    padding: 8px 12px;
-    cursor: pointer;
-    font-size: 20px;
-  }
-
   .loader {
-    border: 16px solid #f3f3f3; /* Light grey */
-    border-top: 16px solid #3498db; /* Blue */
+    border: 16px solid #e9e5ff; /* Light grey */
+    border-top: 16px solid #49547e; /* Blue */
     border-radius: 50%;
     width: 120px;
     height: 120px;
     animation: spin 2s linear infinite;
   }
+
   @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
   }
 }
 
-.image {
-  position: fixed;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  max-width: 100%;
-  max-height: 100%;
-  margin: auto;
-  overflow: auto;
+.fullscreen-container {
+  background-color: #191919;
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+
+  .fullscreen-current-image {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-width: 100%;
+    max-height: 100%;
+    margin: auto;
+    overflow: auto;
+  }
 }

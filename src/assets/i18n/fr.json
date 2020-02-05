@@ -1,9 +1,11 @@
 {
   "PAGES": {
-      "HOME": {
-          "LABEL_SPEED_SLIDESHOW": "Vitesse du diaporama en seconde",
-          "LABEL_UPLOAD_FILE": "Commencer",
-          "IMAGE_CURRENT_ALT": "Image en pleine écran"
-      }
+    "HOME": {
+      "LABEL_SPEED_SLIDESHOW": "Vitesse du diaporama en seconde",
+      "LABEL_UPLOAD_FILE": "Choisir un dossier",
+      "LABEL_UPLOAD_OTHER_FILE": "Choisir un autre dossier",
+      "FULLSCREEN": "Plein écran",
+      "IMAGE_CURRENT_ALT": "Image en plein écran"
+    }
   }
 }

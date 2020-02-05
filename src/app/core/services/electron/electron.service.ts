@@ -1,11 +1,11 @@
 import {Injectable} from '@angular/core';
-
 // If you import a module but never use any of the imported values other than as TypeScript types,
 // the resulting javascript file will look as if you never imported the module at all.
-import {ipcRenderer, webFrame, remote} from 'electron';
+import {ipcRenderer, remote, webFrame} from 'electron';
 import * as childProcess from 'child_process';
 import * as fs from 'fs';
 import * as process from 'process';
+import BrowserWindow = Electron.BrowserWindow;
 
 @Injectable({
   providedIn: 'root'
@@ -56,7 +56,15 @@ export class ElectronService {
     }
   }
 
-  setFullScreen(value: boolean) {
-    return window && this.remote.getCurrentWindow().setFullScreen(value);
+  private getCurrentWindow(): BrowserWindow {
+    return window && this.remote.getCurrentWindow();
+  }
+
+  setFullScreen(value: boolean): void {
+    this.getCurrentWindow().setFullScreen(value);
+  }
+
+  isFullScreen(): boolean {
+    return this.getCurrentWindow().isFullScreen();
   }
 }

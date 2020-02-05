@@ -1,8 +1,19 @@
 /* You can add global styles to this file, and also import other style files */
+@mixin basket($background, $to-right, $to-left, $size:25px) {
+  background: linear-gradient(45deg, $to-right 12%, transparent 0, transparent 88%, $to-right 0),
+  linear-gradient(135deg, transparent 37%, $to-left 0, $to-left 63%, transparent 0),
+  linear-gradient(45deg, transparent 37%, $to-right 0, $to-right 63%, transparent 0),
+  $background;
+  background-size: $size $size;
+}
+
 html, body {
   margin: 0;
   padding: 0;
   height: 100%;
   overflow: hidden;
   background-color: #191919;
+  @include basket(#131527, #3d3f58, #384650, 100px);
 }
+
+

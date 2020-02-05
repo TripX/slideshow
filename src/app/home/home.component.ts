@@ -2,6 +2,10 @@ import {Component, HostListener, OnInit} from '@angular/core';
 import {ElectronService} from "../core/services";
 import Timeout = NodeJS.Timeout;
 
+interface ISlideShowConfig {
+  speedSeconds: number;
+}
+
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
@@ -9,126 +13,156 @@ import Timeout = NodeJS.Timeout;
 })
 export class HomeComponent implements OnInit {
 
-  public currentImageSrc: string;
-  public imagesAreLoading: boolean;
-  public speedSlideShowInSeconds: number;
+  public slideShowConfig: ISlideShowConfig;
   private imagesSrc: string[];
-  private pathFolder: string;
-  private currentIndexImage: number;
+  private indexImage: {
+    previous: number
+    current: number
+    next: number
+  };
+
   private intervalBeforeShowingImage: Timeout;
+  private intervalSelectFolder: Timeout;
 
   constructor(public electronService: ElectronService) {
+    this.imagesSrc = [];
+    this.indexImage = {
+      previous: 0,
+      current: 1,
+      next: 2
+    };
+    this.slideShowConfig = {
+      speedSeconds: 3
+    };
   }
 
   ngOnInit(): void {
-    this.imagesSrc = [];
-    this.speedSlideShowInSeconds = 3;
+    this.electronService.setFullScreen(false);
+    this.electronService.preventDisplayToSleep();
+  }
+
+  isLoadingFolder(): boolean {
+    return this.imagesSrc && this.imagesSrc.length > 0 && !this.imagesSrc[this.indexImage.current];
   }
 
   selectFolder(event: Event) {
-    this.electronService.setFullScreen(false);
-    this.stopSlideShow(null);
-    this.setPathFolder(event);
-    this.startSlideShow();
-  }
-
-  setSpeedSlideShow(event: Event) {
-    if (event && event.target) {
-      const target = event.target as HTMLInputElement;
-      this.speedSlideShowInSeconds = target.valueAsNumber;
+    const target = event.target as HTMLInputElement;
+    if (target && target.files && target.files.length > 0) {
+      this.startLoadingFolder(target.files[0]);
+      this.startShowingSlideshow();
+    } else {
+      console.error('Error event from selectFolder', event);
     }
   }
 
-  private startSlideShow() {
-    this.electronService.preventDisplayToSleep();
-    this.electronService.setFullScreen(true);
-    this.imagesAreLoading = true;
+  private startLoadingFolder(firstFile: File) {
+    const firstImageSrc = firstFile.path;
+    const startPath = 'file:///';
+    const pathFolder = firstImageSrc.substring(0, firstImageSrc.lastIndexOf(this.electronService.pathSeparator) + 1);
 
-    // TODO see rxjs interval(1000)
-    this.intervalBeforeShowingImage = setInterval(() => {
-      this.updateFolderImage();
-      this.showImage();
-    }, this.speedSlideShowInSeconds * 1000);
+    this.imagesSrc = this.loadFolder(startPath, pathFolder);
+    console.log('First Load Folder');
+    const currentIndex = firstImageSrc.length > 0 ? this.imagesSrc.indexOf(startPath + firstImageSrc) - 1 : 0;
+    this.setIndexesImages(currentIndex, false);
+
+    if (this.intervalSelectFolder) {
+      clearInterval(this.intervalSelectFolder);
+      console.log('Clear Interval Load Folder');
+    }
+
+    this.intervalSelectFolder = setInterval(() => {
+      this.imagesSrc = this.loadFolder(startPath, pathFolder);
+      console.log('Interval Load Folder');
+    }, 500);
   }
 
-  @HostListener('document:keydown.escape', ['$event'])
-  @HostListener('document:keydown.f11', ['$event'])
-  stopSlideShow(event: KeyboardEvent | null) {
+  private loadFolder(startPath: string, pathFolder: string): string[] {
+    return this.electronService.fs.readdirSync(pathFolder, {withFileTypes: true})
+      .filter(item => !item.isDirectory())
+      .map(file => {
+        return {
+          name: startPath + pathFolder + file.name,
+          time: this.electronService.fs.statSync(pathFolder + '/' + file.name).mtime.getTime()
+        }
+      })
+      .sort((a, b) => a.time - b.time)
+      .map((v) => v.name);
+  }
+
+  private startShowingSlideshow() {
     if (this.intervalBeforeShowingImage) {
       clearInterval(this.intervalBeforeShowingImage);
+      console.log('Clear Interval Show Next Image');
+    } else {
+      // First time load without waiting
+      this.showNextImage();
+      console.log('First Show Next Image');
     }
 
-    // Prevent default F11 to put in fullscreen
-    if (event && event.key !== 'F11') {
-      this.electronService.setFullScreen(false);
-    }
-
-    this.imagesSrc = [];
-    this.imagesAreLoading = false;
-    this.currentImageSrc = "";
-    this.electronService.stopPreventDisplayToSleep();
+    this.intervalBeforeShowingImage = setInterval(() => {
+      this.showNextImage();
+      console.log('Interval Show Next Image');
+    }, this.slideShowConfig.speedSeconds * 1000);
   }
 
   @HostListener('click', ['$event'])
   @HostListener('document:keydown.ArrowRight', ['$event'])
-  showImage(event: Event | null = null, previous = false) {
+  showNextImage(event: Event | undefined = undefined) {
     if (this.imagesSrc && this.imagesSrc.length > 0) {
-      previous ? this.currentIndexImage-- : this.currentIndexImage++;
-      if (this.currentIndexImage < 0) {
-        this.currentIndexImage = this.imagesSrc.length - 1;
-      } else if (this.currentIndexImage > this.imagesSrc.length - 1) {
-        this.currentIndexImage = 0;
-      }
-      this.currentImageSrc = this.imagesSrc[this.currentIndexImage];
-
-      this.detectOrientation();
+      this.setIndexesImages(this.indexImage.current, false);
     }
   }
 
   @HostListener('document:keydown.ArrowLeft', ['$event'])
-  showPreviousImage() {
-    this.showImage(null, true);
-  }
-
-  private detectOrientation() {
-    let img = new Image();
-
-    img.onload = function () {
-      // TODO found orientation
-    };
-    img.src = this.currentImageSrc;
-  }
-
-  private setPathFolder(event: Event) {
-    const target = event.target as HTMLInputElement;
-    if (target && target.files && target.files.length > 0) {
-      const firstImageSrc = target.files[0].path;
-      this.pathFolder = firstImageSrc.substring(0, firstImageSrc.lastIndexOf(this.electronService.pathSeparator) + 1);
-      this.updateFolderImage(firstImageSrc);
+  showPreviousImage(event: Event | undefined = undefined) {
+    if (event && (event as KeyboardEvent).key === 'ArrowLeft') {
+      this.setIndexesImages(this.indexImage.current, true);
     }
   }
 
-  private updateFolderImage(firstImageSrc: string = "") {
+  setIndexesImages(currentIndex: number, isPrevious: boolean): void {
+    let indexImage;
+    if (isPrevious) {
+      indexImage = {
+        previous: currentIndex - 2,
+        current: currentIndex - 1,
+        next: currentIndex
+      };
+    } else {
+      indexImage = {
+        previous: currentIndex,
+        current: currentIndex + 1,
+        next: currentIndex + 2
+      };
+    }
 
-    if (this.pathFolder) {
-      const startPath = 'file:///';
+    const lastIndex = this.imagesSrc.length - 1;
+    if (currentIndex === lastIndex || currentIndex > lastIndex) {
+      indexImage = {
+        previous: lastIndex,
+        current: 0,
+        next: 1
+      };
+    }
 
-      this.imagesSrc = this.electronService.fs.readdirSync(this.pathFolder, {withFileTypes: true})
-        .filter(item => !item.isDirectory())
-        .map(file => {
-          return {
-            name: startPath + this.pathFolder + file.name,
-            time: this.electronService.fs.statSync(this.pathFolder + '/' + file.name).mtime.getTime()
-          }
-        })
-        .sort((a, b) => a.time - b.time)
-        .map((v) => v.name);
+    this.indexImage = indexImage;
+    console.log(this.indexImage, lastIndex);
+  }
 
-      if (firstImageSrc.length > 0) {
-        this.currentIndexImage = this.imagesSrc.indexOf(startPath + firstImageSrc) - 1;
-      }
+  @HostListener('document:keydown.escape', ['$event'])
+  @HostListener('document:keydown.f11', ['$event'])
+  stopFullScreen(event: KeyboardEvent | null) {
+    // Prevent default F11 to put in fullscreen
+    if (event && event.key !== 'F11') {
+      this.electronService.setFullScreen(false);
+    }
+  }
 
-      this.imagesAreLoading = false;
+  setSpeedSlideShow(event: Event) {
+    if (event && event.target) {
+      const newSpeed = (event.target as HTMLInputElement).valueAsNumber;
+      this.slideShowConfig.speedSeconds = newSpeed && newSpeed >= 1 ? newSpeed : 1;
+      this.startShowingSlideshow();
     }
   }
 }
