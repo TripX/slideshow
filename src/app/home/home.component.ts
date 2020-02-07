@@ -6,6 +6,11 @@ interface ISlideShowConfig {
   speedSeconds: number;
 }
 
+interface IFile {
+  name: string;
+  time: number;
+}
+
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
@@ -14,7 +19,7 @@ interface ISlideShowConfig {
 export class HomeComponent implements OnInit {
 
   public slideShowConfig: ISlideShowConfig;
-  private imagesSrc: string[];
+  private imagesSrc: IFile[];
   private indexImage: {
     previous: number
     current: number
@@ -60,9 +65,9 @@ export class HomeComponent implements OnInit {
     const startPath = 'file:///';
     const pathFolder = firstImageSrc.substring(0, firstImageSrc.lastIndexOf(this.electronService.pathSeparator) + 1);
 
-    this.imagesSrc = this.loadFolder(startPath, pathFolder);
+    this.loadFolder(startPath, pathFolder);
     console.log('First Load Folder');
-    const currentIndex = firstImageSrc.length > 0 ? this.imagesSrc.indexOf(startPath + firstImageSrc) - 1 : 0;
+    const currentIndex = firstImageSrc.length > 0 ? this.imagesSrc.findIndex(image => image.name === startPath + firstImageSrc) - 1 : 0;
     this.setIndexesImages(currentIndex, false);
 
     if (this.intervalSelectFolder) {
@@ -71,13 +76,13 @@ export class HomeComponent implements OnInit {
     }
 
     this.intervalSelectFolder = setInterval(() => {
-      this.imagesSrc = this.loadFolder(startPath, pathFolder);
+      this.loadFolder(startPath, pathFolder);
       console.log('Interval Load Folder');
     }, 500);
   }
 
-  private loadFolder(startPath: string, pathFolder: string): string[] {
-    return this.electronService.fs.readdirSync(pathFolder, {withFileTypes: true})
+  private loadFolder(startPath: string, pathFolder: string): void {
+    this.imagesSrc = this.electronService.fs.readdirSync(pathFolder, {withFileTypes: true})
       .filter(item => !item.isDirectory())
       .map(file => {
         return {
@@ -86,7 +91,7 @@ export class HomeComponent implements OnInit {
         }
       })
       .sort((a, b) => a.time - b.time)
-      .map((v) => v.name);
+      .map((v) => v);
   }
 
   private startShowingSlideshow() {
@@ -105,7 +110,6 @@ export class HomeComponent implements OnInit {
     }, this.slideShowConfig.speedSeconds * 1000);
   }
 
-  @HostListener('click', ['$event'])
   @HostListener('document:keydown.ArrowRight', ['$event'])
   showNextImage(event: Event | undefined = undefined) {
     if (this.imagesSrc && this.imagesSrc.length > 0) {
@@ -122,27 +126,37 @@ export class HomeComponent implements OnInit {
 
   setIndexesImages(currentIndex: number, isPrevious: boolean): void {
     let indexImage;
+    const lastIndex = this.imagesSrc.length - 1;
+
     if (isPrevious) {
       indexImage = {
         previous: currentIndex - 2,
         current: currentIndex - 1,
         next: currentIndex
       };
+
+      // TODO previous ne fonctionne pas ici
+      if (currentIndex - 2 < 0) {
+        indexImage = {
+          previous: lastIndex,
+          current: 0,
+          next: 1
+        };
+      }
     } else {
       indexImage = {
         previous: currentIndex,
         current: currentIndex + 1,
-        next: currentIndex + 2
+        next: currentIndex + 2 > lastIndex ? 0 : currentIndex + 2
       };
-    }
 
-    const lastIndex = this.imagesSrc.length - 1;
-    if (currentIndex === lastIndex || currentIndex > lastIndex) {
-      indexImage = {
-        previous: lastIndex,
-        current: 0,
-        next: 1
-      };
+      if (currentIndex > lastIndex - 1) {
+        indexImage = {
+          previous: lastIndex,
+          current: 0,
+          next: 1
+        };
+      }
     }
 
     this.indexImage = indexImage;

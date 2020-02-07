@@ -5,33 +5,49 @@
   <div id="image-loading" *ngIf="isLoadingFolder()" class="loader"></div>
 
   <ng-container *ngIf="!isLoadingFolder()">
-    <div class="button-container">
+    <div class="top-container" [ngClass]="imagesSrc[indexImage.current]?.name ? 'button-container' : ''">
       <label id="label-file-upload" for="file-upload" class="label-button"
-             [ngClass]="imagesSrc[indexImage.current] ? 'preview' : ''">
+             [ngClass]="imagesSrc[indexImage.current]?.name ? 'preview' : ''">
         <ng-container
-          *ngIf="!imagesSrc[indexImage.current]">{{'PAGES.HOME.LABEL_UPLOAD_FILE' | translate}}</ng-container>
+          *ngIf="!imagesSrc[indexImage.current]?.name">{{'PAGES.HOME.LABEL_UPLOAD_FILE' | translate}}</ng-container>
         <ng-container
-          *ngIf="imagesSrc[indexImage.current]">{{'PAGES.HOME.LABEL_UPLOAD_OTHER_FILE' | translate}}</ng-container>
+          *ngIf="imagesSrc[indexImage.current]?.name">{{'PAGES.HOME.LABEL_UPLOAD_OTHER_FILE' | translate}}</ng-container>
       </label>
       <input id="file-upload" type="file" (change)="selectFolder($event)"/>
 
       <div class="label-button"
-           *ngIf="imagesSrc[indexImage.current]"
+           *ngIf="imagesSrc[indexImage.current]?.name"
            (click)="electronService.setFullScreen(true)"
-           [ngClass]="imagesSrc[indexImage.current] ? 'preview' : ''">
+           [ngClass]="imagesSrc[indexImage.current]?.name ? 'preview' : ''">
         {{'PAGES.HOME.FULLSCREEN' | translate}}
       </div>
 
     </div>
 
-    <ng-container *ngIf="imagesSrc[indexImage.current]">
+    <ng-container *ngIf="imagesSrc[indexImage.current]?.name">
 
       <div class="preview-container">
-        <img class="previous-image" [alt]="'PAGES.HOME.IMAGE_CURRENT_ALT' | translate"
-             [src]="imagesSrc[indexImage.previous]"/>
-        <img class="current-image" [alt]="'PAGES.HOME.IMAGE_CURRENT_ALT' | translate"
-             [src]="imagesSrc[indexImage.current]"/>
-        <img class="next-image" [alt]="'PAGES.HOME.IMAGE_CURRENT_ALT' | translate" [src]="imagesSrc[indexImage.next]"/>
+        <div class="image-container">
+          <img class="previous-image" [alt]="'PAGES.HOME.IMAGE_CURRENT_ALT' | translate"
+               [src]="imagesSrc[indexImage.previous]?.name"/>
+          {{'PAGES.HOME.IMAGE_PREVIOUS' | translate}}
+          {{imagesSrc[indexImage.previous]?.time | date}}
+        </div>
+
+        <div class="image-container">
+          <img class="current-image" [alt]="'PAGES.HOME.IMAGE_CURRENT_ALT' | translate"
+               [src]="imagesSrc[indexImage.current]?.name"/>
+          {{'PAGES.HOME.IMAGE_CURRENT' | translate}}
+          {{imagesSrc[indexImage.current]?.time | date}}
+        </div>
+
+        <div class="image-container">
+          <img class="next-image" [alt]="'PAGES.HOME.IMAGE_CURRENT_ALT' | translate"
+               [src]="imagesSrc[indexImage.next].name"/>
+          {{'PAGES.HOME.IMAGE_NEXT' | translate}}
+          {{imagesSrc[indexImage.next]?.time | date}}
+        </div>
+
       </div>
 
       <div class="container-speed-slideshow">
@@ -49,5 +65,5 @@
 
 <div id="image-fullscreen" *ngIf="electronService.isFullScreen()" class="fullscreen-container">
   <img class="fullscreen-current-image" [alt]="'PAGES.HOME.IMAGE_CURRENT_ALT' | translate"
-       [src]="imagesSrc[indexImage.current]"/>
+       [src]="imagesSrc[indexImage.current]?.name"/>
 </div>

@@ -1,7 +1,10 @@
 
 .container {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100vw;
-  height: 0;
+  height: 100vh;
 }
 
 .circle-container {
@@ -11,7 +14,7 @@
   $particleExternalBorderColor: rgba(190, 188, 116, 0.07);
 
   position: absolute;
-  transform: translateY(-10vh);
+  transform: translateX(-10vw);
   animation-iteration-count: infinite;
   animation-timing-function: linear;
 

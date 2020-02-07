@@ -5,7 +5,10 @@
       "LABEL_UPLOAD_FILE": "Choisir un dossier",
       "LABEL_UPLOAD_OTHER_FILE": "Choisir un autre dossier",
       "FULLSCREEN": "Plein écran",
-      "IMAGE_CURRENT_ALT": "Image en plein écran"
+      "IMAGE_CURRENT_ALT": "Photo",
+      "IMAGE_PREVIOUS": "Précendente photo affichée",
+      "IMAGE_CURRENT": "Photo actuellement affichée",
+      "IMAGE_NEXT": "Prochaine photo affichée"
     }
   }
 }
