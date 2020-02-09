@@ -29,6 +29,8 @@ export class HomeComponent implements OnInit {
   private intervalBeforeShowingImage: Timeout;
   private intervalSelectFolder: Timeout;
 
+  private dateFormat = 'medium';
+
   constructor(public electronService: ElectronService) {
     this.imagesSrc = [];
     this.indexImage = {
@@ -37,7 +39,7 @@ export class HomeComponent implements OnInit {
       next: 2
     };
     this.slideShowConfig = {
-      speedSeconds: 3
+      speedSeconds: 4
     };
   }
 
@@ -66,18 +68,15 @@ export class HomeComponent implements OnInit {
     const pathFolder = firstImageSrc.substring(0, firstImageSrc.lastIndexOf(this.electronService.pathSeparator) + 1);
 
     this.loadFolder(startPath, pathFolder);
-    console.log('First Load Folder');
     const currentIndex = firstImageSrc.length > 0 ? this.imagesSrc.findIndex(image => image.name === startPath + firstImageSrc) - 1 : 0;
-    this.setIndexesImages(currentIndex, false);
+    this.setIndexesImages(false, currentIndex);
 
     if (this.intervalSelectFolder) {
       clearInterval(this.intervalSelectFolder);
-      console.log('Clear Interval Load Folder');
     }
 
     this.intervalSelectFolder = setInterval(() => {
       this.loadFolder(startPath, pathFolder);
-      console.log('Interval Load Folder');
     }, 500);
   }
 
@@ -97,70 +96,36 @@ export class HomeComponent implements OnInit {
   private startShowingSlideshow() {
     if (this.intervalBeforeShowingImage) {
       clearInterval(this.intervalBeforeShowingImage);
-      console.log('Clear Interval Show Next Image');
-    } else {
-      // First time load without waiting
-      this.showNextImage();
-      console.log('First Show Next Image');
     }
 
     this.intervalBeforeShowingImage = setInterval(() => {
-      this.showNextImage();
-      console.log('Interval Show Next Image');
+      this.setIndexesImages(false);
     }, this.slideShowConfig.speedSeconds * 1000);
   }
 
   @HostListener('document:keydown.ArrowRight', ['$event'])
-  showNextImage(event: Event | undefined = undefined) {
-    if (this.imagesSrc && this.imagesSrc.length > 0) {
-      this.setIndexesImages(this.indexImage.current, false);
-    }
-  }
-
   @HostListener('document:keydown.ArrowLeft', ['$event'])
-  showPreviousImage(event: Event | undefined = undefined) {
-    if (event && (event as KeyboardEvent).key === 'ArrowLeft') {
-      this.setIndexesImages(this.indexImage.current, true);
-    }
+  showNextImageFrom(event: Event | undefined = undefined) {
+    const eventKey = event && (event as KeyboardEvent).key;
+    this.setIndexesImages(eventKey === 'ArrowLeft');
   }
 
-  setIndexesImages(currentIndex: number, isPrevious: boolean): void {
-    let indexImage;
+  setIndexesImages(isPrevious: boolean, currentIndex = this.indexImage.current): void {
     const lastIndex = this.imagesSrc.length - 1;
-
+    const firstIndex = 0;
     if (isPrevious) {
-      indexImage = {
-        previous: currentIndex - 2,
-        current: currentIndex - 1,
-        next: currentIndex
+      this.indexImage = {
+        previous: this.indexImage.previous - 1 < firstIndex ? lastIndex : this.indexImage.previous - 1,
+        current: this.indexImage.current - 1 < firstIndex ? lastIndex : this.indexImage.current - 1,
+        next: this.indexImage.next - 1 < firstIndex ? lastIndex : this.indexImage.next - 1
       };
-
-      // TODO previous ne fonctionne pas ici
-      if (currentIndex - 2 < 0) {
-        indexImage = {
-          previous: lastIndex,
-          current: 0,
-          next: 1
-        };
-      }
     } else {
-      indexImage = {
-        previous: currentIndex,
-        current: currentIndex + 1,
-        next: currentIndex + 2 > lastIndex ? 0 : currentIndex + 2
+      this.indexImage = {
+        previous: this.indexImage.previous + 1 > lastIndex ? firstIndex : this.indexImage.previous + 1,
+        current: this.indexImage.current + 1 > lastIndex ? firstIndex : this.indexImage.current + 1,
+        next: this.indexImage.next + 1 > lastIndex ? firstIndex : this.indexImage.next + 1
       };
-
-      if (currentIndex > lastIndex - 1) {
-        indexImage = {
-          previous: lastIndex,
-          current: 0,
-          next: 1
-        };
-      }
     }
-
-    this.indexImage = indexImage;
-    console.log(this.indexImage, lastIndex);
   }
 
   @HostListener('document:keydown.escape', ['$event'])

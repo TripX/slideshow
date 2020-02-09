@@ -31,21 +31,21 @@
           <img class="previous-image" [alt]="'PAGES.HOME.IMAGE_CURRENT_ALT' | translate"
                [src]="imagesSrc[indexImage.previous]?.name"/>
           {{'PAGES.HOME.IMAGE_PREVIOUS' | translate}}
-          {{imagesSrc[indexImage.previous]?.time | date}}
+          <p>{{imagesSrc[indexImage.previous]?.time | date: dateFormat}}</p>
         </div>
 
         <div class="image-container">
           <img class="current-image" [alt]="'PAGES.HOME.IMAGE_CURRENT_ALT' | translate"
                [src]="imagesSrc[indexImage.current]?.name"/>
           {{'PAGES.HOME.IMAGE_CURRENT' | translate}}
-          {{imagesSrc[indexImage.current]?.time | date}}
+          <p>{{imagesSrc[indexImage.current]?.time | date: dateFormat}}</p>
         </div>
 
         <div class="image-container">
           <img class="next-image" [alt]="'PAGES.HOME.IMAGE_CURRENT_ALT' | translate"
                [src]="imagesSrc[indexImage.next].name"/>
           {{'PAGES.HOME.IMAGE_NEXT' | translate}}
-          {{imagesSrc[indexImage.next]?.time | date}}
+          <p>{{imagesSrc[indexImage.next]?.time | date: dateFormat}}</p>
         </div>
 
       </div>
