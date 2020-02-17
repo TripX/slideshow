@@ -2,13 +2,25 @@ import {Component, HostListener, OnInit} from '@angular/core';
 import {ElectronService} from "../core/services";
 import Timeout = NodeJS.Timeout;
 
-interface ISlideShowConfig {
+enum ESlideshowState {
+  RUNNING,
+  STOPPED
+}
+
+interface ISlideshowState {
+  state: ESlideshowState,
   speedSeconds: number;
 }
 
 interface IFile {
   name: string;
   time: number;
+}
+
+interface IIndexImage  {
+  previous: number;
+  current: number;
+  next: number;
 }
 
 @Component({
@@ -18,13 +30,9 @@ interface IFile {
 })
 export class HomeComponent implements OnInit {
 
-  public slideShowConfig: ISlideShowConfig;
+  private slideShowState: ISlideshowState;
   private imagesSrc: IFile[];
-  private indexImage: {
-    previous: number
-    current: number
-    next: number
-  };
+  private indexImage: IIndexImage;
 
   private intervalBeforeShowingImage: Timeout;
   private intervalSelectFolder: Timeout;
@@ -38,7 +46,8 @@ export class HomeComponent implements OnInit {
       current: 1,
       next: 2
     };
-    this.slideShowConfig = {
+    this.slideShowState = {
+      state: ESlideshowState.STOPPED,
       speedSeconds: 4
     };
   }
@@ -52,40 +61,36 @@ export class HomeComponent implements OnInit {
     return this.imagesSrc && this.imagesSrc.length > 0 && !this.imagesSrc[this.indexImage.current];
   }
 
+  // TODO Vraiment choisir un dossier et non un fichier
   selectFolder(event: Event) {
     const target = event.target as HTMLInputElement;
-    if (target && target.files && target.files.length > 0) {
-      this.startLoadingFolder(target.files[0]);
-      this.startShowingSlideshow();
+    if (target && target.files && target.files.length > 0 && target.files[0].path) {
+      this.startLoadingFolder(target.files[0].path);
+      this.startShowingSlideshow(false);
     } else {
       console.error('Error event from selectFolder', event);
     }
   }
 
-  private startLoadingFolder(firstFile: File) {
-    const firstImageSrc = firstFile.path;
-    const startPath = 'file:///';
-    const pathFolder = firstImageSrc.substring(0, firstImageSrc.lastIndexOf(this.electronService.pathSeparator) + 1);
-
-    this.loadFolder(startPath, pathFolder);
-    const currentIndex = firstImageSrc.length > 0 ? this.imagesSrc.findIndex(image => image.name === startPath + firstImageSrc) - 1 : 0;
-    this.setIndexesImages(false, currentIndex);
+  private startLoadingFolder(chosenFilePath: string) {
+    const pathFolder = chosenFilePath.substring(0, chosenFilePath.lastIndexOf(this.electronService.pathSeparator) + 1);
+    this.imagesSrc = this.loadFolder(pathFolder);
 
     if (this.intervalSelectFolder) {
       clearInterval(this.intervalSelectFolder);
     }
 
     this.intervalSelectFolder = setInterval(() => {
-      this.loadFolder(startPath, pathFolder);
+      this.imagesSrc = this.loadFolder(pathFolder);
     }, 500);
   }
 
-  private loadFolder(startPath: string, pathFolder: string): void {
-    this.imagesSrc = this.electronService.fs.readdirSync(pathFolder, {withFileTypes: true})
+  private loadFolder(pathFolder: string): IFile[] {
+    return this.electronService.fs.readdirSync(pathFolder, {withFileTypes: true})
       .filter(item => !item.isDirectory())
       .map(file => {
         return {
-          name: startPath + pathFolder + file.name,
+          name: 'file:///' + pathFolder + file.name,
           time: this.electronService.fs.statSync(pathFolder + '/' + file.name).mtime.getTime()
         }
       })
@@ -93,26 +98,36 @@ export class HomeComponent implements OnInit {
       .map((v) => v);
   }
 
-  private startShowingSlideshow() {
+  private stopSlideshow() {
     if (this.intervalBeforeShowingImage) {
       clearInterval(this.intervalBeforeShowingImage);
+      this.slideShowState.state = ESlideshowState.STOPPED;
     }
+  }
+
+  private startShowingSlideshow(withWithFullscreen: boolean) {
+
+    this.electronService.setFullScreen(withWithFullscreen);
+
+    this.stopSlideshow();
+
+    this.slideShowState.state = ESlideshowState.RUNNING;
 
     this.intervalBeforeShowingImage = setInterval(() => {
-      this.setIndexesImages(false);
-    }, this.slideShowConfig.speedSeconds * 1000);
+      this.setIndexesImages({isPrevious: false});
+    }, this.slideShowState.speedSeconds * 1000);
   }
 
   @HostListener('document:keydown.ArrowRight', ['$event'])
   @HostListener('document:keydown.ArrowLeft', ['$event'])
-  showNextImageFrom(event: Event | undefined = undefined) {
-    const eventKey = event && (event as KeyboardEvent).key;
-    this.setIndexesImages(eventKey === 'ArrowLeft');
+  showNextImageFrom(event: KeyboardEvent) {
+    this.setIndexesImages({isPrevious: (event && event.key) === 'ArrowLeft'});
   }
 
-  setIndexesImages(isPrevious: boolean, currentIndex = this.indexImage.current): void {
+  setIndexesImages({isPrevious}: {isPrevious: boolean}): void {
     const lastIndex = this.imagesSrc.length - 1;
     const firstIndex = 0;
+
     if (isPrevious) {
       this.indexImage = {
         previous: this.indexImage.previous - 1 < firstIndex ? lastIndex : this.indexImage.previous - 1,
@@ -128,6 +143,14 @@ export class HomeComponent implements OnInit {
     }
   }
 
+  setSpeedSlideShow(event: Event) {
+    if (event && event.target) {
+      const newSpeed = (event.target as HTMLInputElement).valueAsNumber;
+      this.slideShowState.speedSeconds = newSpeed && newSpeed >= 1 ? newSpeed : 1;
+      this.startShowingSlideshow(false);
+    }
+  }
+
   @HostListener('document:keydown.escape', ['$event'])
   @HostListener('document:keydown.f11', ['$event'])
   stopFullScreen(event: KeyboardEvent | null) {
@@ -137,11 +160,11 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  setSpeedSlideShow(event: Event) {
-    if (event && event.target) {
-      const newSpeed = (event.target as HTMLInputElement).valueAsNumber;
-      this.slideShowConfig.speedSeconds = newSpeed && newSpeed >= 1 ? newSpeed : 1;
-      this.startShowingSlideshow();
-    }
+  isSlideshowRunning() {
+    return this.slideShowState.state === ESlideshowState.RUNNING;
+  }
+
+  isSlideshowStopped() {
+    return this.slideShowState.state === ESlideshowState.STOPPED;
   }
 }

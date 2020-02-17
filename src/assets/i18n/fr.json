@@ -4,11 +4,15 @@
       "LABEL_SPEED_SLIDESHOW": "Vitesse du diaporama en seconde",
       "LABEL_UPLOAD_FILE": "Choisir un dossier",
       "LABEL_UPLOAD_OTHER_FILE": "Choisir un autre dossier",
-      "FULLSCREEN": "Plein écran",
+      "FULLSCREEN": "Démarrer le diaporama en plein écran",
       "IMAGE_CURRENT_ALT": "Photo",
       "IMAGE_PREVIOUS": "Photo précédente",
       "IMAGE_CURRENT": "Photo actuelle",
-      "IMAGE_NEXT": "Photo suivante"
+      "IMAGE_NEXT": "Photo suivante",
+      "SLIDESHOW": {
+        "PAUSE": "Arrêter le diaporama",
+        "START": "Démarrer le diaporama"
+      }
     }
   }
 }

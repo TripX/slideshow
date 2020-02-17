@@ -6,22 +6,16 @@
 
   <ng-container *ngIf="!isLoadingFolder()">
     <div class="top-container" [ngClass]="imagesSrc[indexImage.current]?.name ? 'button-container' : ''">
-      <label id="label-file-upload" for="file-upload" class="label-button"
+      <label id="label-file-upload" for="file-upload" class="home-button"
              [ngClass]="imagesSrc[indexImage.current]?.name ? 'preview' : ''">
-        <ng-container
-          *ngIf="!imagesSrc[indexImage.current]?.name">{{'PAGES.HOME.LABEL_UPLOAD_FILE' | translate}}</ng-container>
-        <ng-container
-          *ngIf="imagesSrc[indexImage.current]?.name">{{'PAGES.HOME.LABEL_UPLOAD_OTHER_FILE' | translate}}</ng-container>
+        <ng-container *ngIf="!imagesSrc[indexImage.current]?.name">
+          {{'PAGES.HOME.LABEL_UPLOAD_FILE' | translate}}
+        </ng-container>
+        <ng-container *ngIf="imagesSrc[indexImage.current]?.name">
+          {{'PAGES.HOME.LABEL_UPLOAD_OTHER_FILE' | translate}}
+        </ng-container>
       </label>
       <input id="file-upload" type="file" (change)="selectFolder($event)"/>
-
-      <div class="label-button"
-           *ngIf="imagesSrc[indexImage.current]?.name"
-           (click)="electronService.setFullScreen(true)"
-           [ngClass]="imagesSrc[indexImage.current]?.name ? 'preview' : ''">
-        {{'PAGES.HOME.FULLSCREEN' | translate}}
-      </div>
-
     </div>
 
     <ng-container *ngIf="imagesSrc[indexImage.current]?.name">
@@ -32,6 +26,7 @@
                [src]="imagesSrc[indexImage.previous]?.name"/>
           {{'PAGES.HOME.IMAGE_PREVIOUS' | translate}}
           <p>{{imagesSrc[indexImage.previous]?.time | date: dateFormat}}</p>
+          <p>{{indexImage.previous}}</p>
         </div>
 
         <div class="image-container">
@@ -39,6 +34,7 @@
                [src]="imagesSrc[indexImage.current]?.name"/>
           {{'PAGES.HOME.IMAGE_CURRENT' | translate}}
           <p>{{imagesSrc[indexImage.current]?.time | date: dateFormat}}</p>
+          <p>{{indexImage.current}}</p>
         </div>
 
         <div class="image-container">
@@ -46,15 +42,31 @@
                [src]="imagesSrc[indexImage.next].name"/>
           {{'PAGES.HOME.IMAGE_NEXT' | translate}}
           <p>{{imagesSrc[indexImage.next]?.time | date: dateFormat}}</p>
+          <p>{{indexImage.next}}</p>
         </div>
 
+      </div>
+
+      <div *ngIf="isSlideshowRunning()" (click)="stopSlideshow()"
+           class="home-button pause-button preview">
+        {{'PAGES.HOME.SLIDESHOW.PAUSE' | translate}}
+      </div>
+
+      <div *ngIf="isSlideshowStopped()" (click)="startShowingSlideshow(false)"
+           class="home-button start-button preview">
+        {{'PAGES.HOME.SLIDESHOW.START' | translate}}
+      </div>
+
+      <div (click)="startShowingSlideshow(true)"
+           class="home-button fullscreen-button preview">
+        {{'PAGES.HOME.FULLSCREEN' | translate}}
       </div>
 
       <div class="container-speed-slideshow">
         <label for="speed-slideshow"
                class="label-speed-slideshow">{{'PAGES.HOME.LABEL_SPEED_SLIDESHOW' | translate}}</label>
         <input id="speed-slideshow" class="input-speed-slideshow" type="number" (input)="setSpeedSlideShow($event)"
-               [(ngModel)]="slideShowConfig.speedSeconds">
+               [(ngModel)]="slideShowState.speedSeconds">
         <span class="bar"></span>
       </div>
 

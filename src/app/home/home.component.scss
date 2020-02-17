@@ -1,12 +1,24 @@
 $trans-time: 300ms;
 $width: 200px;
 
-.label-button {
+.home-button {
   background-color: rgba(88, 88, 88, 0.8);
   padding: 18px;
   cursor: pointer;
   font-size: 25px;
   border-radius: 8px;
+
+  &.fullscreen-button {
+    background-color: #4142dacc;
+  }
+
+  &.start-button {
+    background-color: rgba(118, 218, 143, 0.8);
+  }
+
+  &.pause-button {
+    background-color: rgba(218, 128, 129, 0.8);
+  }
 
   &.preview {
     font-size: 20px;
