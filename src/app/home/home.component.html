@@ -66,13 +66,18 @@
         <label for="speed-slideshow"
                class="label-speed-slideshow">{{'PAGES.HOME.LABEL_SPEED_SLIDESHOW' | translate}}</label>
         <input id="speed-slideshow" class="input-speed-slideshow" type="number" (input)="setSpeedSlideShow($event)"
-               [(ngModel)]="slideShowState.speedSeconds">
+               [(ngModel)]="slideShow.speedSeconds">
         <span class="bar"></span>
       </div>
 
-      <button (click)="inverseSorting()">
-        Change tri
-      </button>
+      <div class="switch-container">
+        <span class="switch-label">{{'PAGES.HOME.LABEL_SORTING' | translate}}</span>
+        <span class="switch-sorting">{{slideShow.sortingState.valueOf()}}</span>
+        <label class="switch">
+          <input type="checkbox" (click)="inverseSorting()">
+          <span class="slider round"></span>
+        </label>
+      </div>
 
     </ng-container>
   </ng-container>

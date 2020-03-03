@@ -8,8 +8,14 @@ enum ESlideshowState {
   STOPPED
 }
 
+enum ESortingState {
+  OLD_TO_NEW = 'Des plus anciennes aux nouvelles',
+  NEW_TO_OLD = 'Des plus récentes aux anciennes'
+}
+
 interface ISlideshowState {
   state: ESlideshowState,
+  sortingState: ESortingState,
   speedSeconds: number;
 }
 
@@ -31,10 +37,9 @@ interface IIndexImage  {
 })
 export class HomeComponent implements OnInit {
 
-  private slideShowState: ISlideshowState;
+  private slideShow: ISlideshowState;
   private imagesSrc: IFile[];
   private indexImage: IIndexImage;
-  private filesDateOldToRecent: boolean;
 
   private intervalBeforeShowingImage: Timeout;
   private intervalSelectFolder: Timeout;
@@ -43,14 +48,15 @@ export class HomeComponent implements OnInit {
 
   constructor(public electronService: ElectronService) {
     this.imagesSrc = [];
-    this.filesDateOldToRecent = true;
+
     this.indexImage = {
       previous: 0,
       current: 1,
       next: 2
     };
-    this.slideShowState = {
+    this.slideShow = {
       state: ESlideshowState.STOPPED,
+      sortingState: ESortingState.OLD_TO_NEW,
       speedSeconds: 4
     };
   }
@@ -64,6 +70,7 @@ export class HomeComponent implements OnInit {
     return this.imagesSrc && this.imagesSrc.length > 0 && !this.imagesSrc[this.indexImage.current];
   }
 
+  // TODO re-vérfier l'ajout d'image pendant que le diapo tourne
   // TODO Vraiment choisir un dossier et non un fichier
   selectFolder(event: Event) {
     const target = event.target as HTMLInputElement;
@@ -107,7 +114,7 @@ export class HomeComponent implements OnInit {
 
     this.intervalSelectFolder = setInterval(() => {
       const loadedFiles = this.electronService.fs.readdirSync(pathFolder, {withFileTypes: true});
-      if (this.filesDateOldToRecent) {
+      if (this.slideShow.sortingState === ESortingState.OLD_TO_NEW) {
         this.imagesSrc = pipe(getFilesProperties, sortFromOldToRecent)(loadedFiles);
       } else {
         this.imagesSrc = pipe(getFilesProperties, sortFromRecentToOld)(loadedFiles);
@@ -118,7 +125,7 @@ export class HomeComponent implements OnInit {
   private stopSlideshow() {
     if (this.intervalBeforeShowingImage) {
       clearInterval(this.intervalBeforeShowingImage);
-      this.slideShowState.state = ESlideshowState.STOPPED;
+      this.slideShow.state = ESlideshowState.STOPPED;
     }
   }
 
@@ -128,11 +135,11 @@ export class HomeComponent implements OnInit {
 
     this.stopSlideshow();
 
-    this.slideShowState.state = ESlideshowState.RUNNING;
+    this.slideShow.state = ESlideshowState.RUNNING;
 
     this.intervalBeforeShowingImage = setInterval(() => {
       this.setIndexesImages({isPrevious: false});
-    }, this.slideShowState.speedSeconds * 1000);
+    }, this.slideShow.speedSeconds * 1000);
   }
 
   @HostListener('document:keydown.ArrowRight', ['$event'])
@@ -163,7 +170,7 @@ export class HomeComponent implements OnInit {
   setSpeedSlideShow(event: Event) {
     if (event && event.target) {
       const newSpeed = (event.target as HTMLInputElement).valueAsNumber;
-      this.slideShowState.speedSeconds = newSpeed && newSpeed >= 1 ? newSpeed : 1;
+      this.slideShow.speedSeconds = newSpeed && newSpeed >= 1 ? newSpeed : 1;
       this.startShowingSlideshow(false);
     }
   }
@@ -178,14 +185,14 @@ export class HomeComponent implements OnInit {
   }
 
   isSlideshowRunning() {
-    return this.slideShowState.state === ESlideshowState.RUNNING;
+    return this.slideShow.state === ESlideshowState.RUNNING;
   }
 
   isSlideshowStopped() {
-    return this.slideShowState.state === ESlideshowState.STOPPED;
+    return this.slideShow.state === ESlideshowState.STOPPED;
   }
 
   inverseSorting() {
-    this.filesDateOldToRecent = !this.filesDateOldToRecent;
+    this.slideShow.sortingState === ESortingState.NEW_TO_OLD ? this.slideShow.sortingState = ESortingState.OLD_TO_NEW : this.slideShow.sortingState = ESortingState.NEW_TO_OLD
   }
 }
