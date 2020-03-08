@@ -9,8 +9,8 @@ enum ESlideshowState {
 }
 
 enum ESortingState {
-  OLD_TO_NEW = 'Des plus anciennes aux nouvelles',
-  NEW_TO_OLD = 'Des plus récentes aux anciennes'
+  OLD_TO_NEW = 'Des plus anciennes aux plus récentes',
+  NEW_TO_OLD = 'Des plus récentes aux plus anciennes'
 }
 
 interface ISlideshowState {
@@ -66,12 +66,11 @@ export class HomeComponent implements OnInit {
     this.electronService.preventDisplayToSleep();
   }
 
-  isLoadingFolder(): boolean {
-    return this.imagesSrc && this.imagesSrc.length > 0 && !this.imagesSrc[this.indexImage.current];
-  }
+  get currentImageName(): string {
+    return this.imagesSrc[this.indexImage.current]?.name
+  };
 
   // TODO re-vérfier l'ajout d'image pendant que le diapo tourne
-  // TODO Vraiment choisir un dossier et non un fichier
   selectFolder(event: Event) {
     const target = event.target as HTMLInputElement;
     if (target && target.files && target.files.length > 0 && target.files[0].path) {
@@ -119,6 +118,7 @@ export class HomeComponent implements OnInit {
       } else {
         this.imagesSrc = pipe(getFilesProperties, sortFromRecentToOld)(loadedFiles);
       }
+      console.log("after", this.imagesSrc.length);
     }, 500);
   }
 
@@ -194,5 +194,9 @@ export class HomeComponent implements OnInit {
 
   inverseSorting() {
     this.slideShow.sortingState === ESortingState.NEW_TO_OLD ? this.slideShow.sortingState = ESortingState.OLD_TO_NEW : this.slideShow.sortingState = ESortingState.NEW_TO_OLD
+  }
+
+  isSortingOldToNew() {
+    return this.slideShow.sortingState === ESortingState.OLD_TO_NEW;
   }
 }

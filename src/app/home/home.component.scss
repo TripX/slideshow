@@ -1,5 +1,7 @@
 $trans-time: 300ms;
-$width: 200px;
+$width: 50px;
+$oldToRecent: #72bbdd;
+$recentToOld: rgb(118, 218, 143);
 
 .home-button {
   background-color: rgba(88, 88, 88, 0.8);
@@ -27,9 +29,8 @@ $width: 200px;
   }
 
   &:hover {
-    background: rgba(73, 84, 126, 1);
-    color: white;
-    border-color: white;
+    box-shadow: 0 0 15px 5px #55a0dc4d;
+    opacity: 0.8;
   }
 }
 
@@ -39,18 +40,18 @@ $width: 200px;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  -webkit-background-size: cover; /* pour anciens Chrome et Safari */
-  background-size: cover; /* version standardisée */
-  color: antiquewhite;
+  color: white;
   background-color: #191919e6;
 
   .top-container {
     z-index: 10;
   }
 
-  .button-container {
+  .button-container, .options-container, .actions-container {
     display: flex;
-    margin-bottom: auto;
+    align-items: center;
+    margin: auto;
+    font-size: 18px;
   }
 
   .preview-container {
@@ -78,8 +79,8 @@ $width: 200px;
   }
 
   .container-speed-slideshow {
-    height: 35vh;
-    margin-top: 2vh;
+    margin-right: 50px;
+    width: 300px;
 
     .input-speed-slideshow {
       background: none;
@@ -107,7 +108,6 @@ $width: 200px;
     }
 
     .label-speed-slideshow {
-      font-size: 16px;
       font-weight: normal;
       pointer-events: none;
       transition: $trans-time ease all;
@@ -132,26 +132,27 @@ $width: 200px;
     }
   }
 
+  .switch-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 300px;
+
+    .switch-label {
+      margin: 5px;
+    }
+
+    .old-to-recent {
+      color: $oldToRecent;
+    }
+
+    .recent-to-old {
+      color: $recentToOld;
+    }
+  }
+
   input[type="file"] {
     display: none;
-  }
-
-  .loader {
-    border: 16px solid #e9e5ff; /* Light grey */
-    border-top: 16px solid #49547e; /* Blue */
-    border-radius: 50%;
-    width: 120px;
-    height: 120px;
-    animation: spin 2s linear infinite;
-  }
-
-  @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-    100% {
-      transform: rotate(360deg);
-    }
   }
 }
 
@@ -172,16 +173,6 @@ $width: 200px;
     max-height: 100%;
     margin: auto;
     overflow: auto;
-  }
-}
-
-.switch-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-
-  .switch-label {
-    margin: 5px;
   }
 }
 
@@ -207,7 +198,7 @@ $width: 200px;
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #ccc;
+    background-color: $oldToRecent;
     -webkit-transition: .4s;
     transition: .4s;
   }
@@ -225,11 +216,11 @@ $width: 200px;
   }
 
   input:checked + .slider {
-    background-color: #2196F3;
+    background-color: $recentToOld;
   }
 
   input:focus + .slider {
-    box-shadow: 0 0 1px #2196F3;
+    box-shadow: 0 0 1px $recentToOld;
   }
 
   input:checked + .slider:before {

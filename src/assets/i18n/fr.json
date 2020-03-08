@@ -2,7 +2,8 @@
   "PAGES": {
     "HOME": {
       "LABEL_SORTING": "Tri des images par date",
-      "LABEL_SPEED_SLIDESHOW": "Vitesse du diaporama en seconde",
+      "LABEL_SPEED_SLIDESHOW": "Vitesse du diaporama",
+      "SUB_LABEL_SPEED": "en secondes",
       "LABEL_UPLOAD_FILE": "Choisir un dossier",
       "LABEL_UPLOAD_OTHER_FILE": "Choisir un autre dossier",
       "FULLSCREEN": "Démarrer le diaporama en plein écran",

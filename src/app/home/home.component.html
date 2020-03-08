@@ -2,51 +2,72 @@
 
   <app-circle></app-circle>
 
-  <div id="image-loading" *ngIf="isLoadingFolder()" class="loader"></div>
+  <div class="top-container" [ngClass]="currentImageName ? 'button-container' : ''">
+    <label id="label-file-upload" for="file-upload" class="home-button"
+           [ngClass]="currentImageName ? 'preview' : ''">
 
-  <ng-container *ngIf="!isLoadingFolder()">
-    <div class="top-container" [ngClass]="imagesSrc[indexImage.current]?.name ? 'button-container' : ''">
-      <label id="label-file-upload" for="file-upload" class="home-button"
-             [ngClass]="imagesSrc[indexImage.current]?.name ? 'preview' : ''">
-        <ng-container *ngIf="!imagesSrc[indexImage.current]?.name">
-          {{'PAGES.HOME.LABEL_UPLOAD_FILE' | translate}}
-        </ng-container>
-        <ng-container *ngIf="imagesSrc[indexImage.current]?.name">
-          {{'PAGES.HOME.LABEL_UPLOAD_OTHER_FILE' | translate}}
-        </ng-container>
-      </label>
-      <input id="file-upload" type="file" (change)="selectFolder($event)"/>
-    </div>
+      <ng-container *ngIf="!currentImageName">
+        {{'PAGES.HOME.LABEL_UPLOAD_FILE' | translate}}
+      </ng-container>
+      <ng-container *ngIf="currentImageName">
+        {{'PAGES.HOME.LABEL_UPLOAD_OTHER_FILE' | translate}}
+      </ng-container>
 
-    <ng-container *ngIf="imagesSrc[indexImage.current]?.name">
+    </label>
+    <input id="file-upload" type="file" webkitdirectory (change)="selectFolder($event)"/>
+  </div>
 
-      <div class="preview-container">
-        <div class="image-container">
-          <img class="previous-image" [alt]="'PAGES.HOME.IMAGE_CURRENT_ALT' | translate"
-               [src]="imagesSrc[indexImage.previous]?.name"/>
-          {{'PAGES.HOME.IMAGE_PREVIOUS' | translate}}
-          <p>{{imagesSrc[indexImage.previous]?.time | date: dateFormat}}</p>
-          <p>{{indexImage.previous}}</p>
-        </div>
+  <ng-container *ngIf="currentImageName">
 
-        <div class="image-container">
-          <img class="current-image" [alt]="'PAGES.HOME.IMAGE_CURRENT_ALT' | translate"
-               [src]="imagesSrc[indexImage.current]?.name"/>
-          {{'PAGES.HOME.IMAGE_CURRENT' | translate}}
-          <p>{{imagesSrc[indexImage.current]?.time | date: dateFormat}}</p>
-          <p>{{indexImage.current}}</p>
-        </div>
-
-        <div class="image-container">
-          <img class="next-image" [alt]="'PAGES.HOME.IMAGE_CURRENT_ALT' | translate"
-               [src]="imagesSrc[indexImage.next].name"/>
-          {{'PAGES.HOME.IMAGE_NEXT' | translate}}
-          <p>{{imagesSrc[indexImage.next]?.time | date: dateFormat}}</p>
-          <p>{{indexImage.next}}</p>
-        </div>
-
+    <div class="preview-container">
+      <div class="image-container">
+        <img class="previous-image" [alt]="'PAGES.HOME.IMAGE_CURRENT_ALT' | translate"
+             [src]="imagesSrc[indexImage.previous]?.name"/>
+        {{'PAGES.HOME.IMAGE_PREVIOUS' | translate}}
+        <p>{{imagesSrc[indexImage.previous]?.time | date: dateFormat}}</p>
+        <p>{{indexImage.previous}}</p>
       </div>
 
+      <div class="image-container">
+        <img class="current-image" [alt]="'PAGES.HOME.IMAGE_CURRENT_ALT' | translate"
+             [src]="currentImageName"/>
+        {{'PAGES.HOME.IMAGE_CURRENT' | translate}}
+        <p>{{imagesSrc[indexImage.current]?.time | date: dateFormat}}</p>
+        <p>{{indexImage.current}}</p>
+      </div>
+
+      <div class="image-container">
+        <img class="next-image" [alt]="'PAGES.HOME.IMAGE_CURRENT_ALT' | translate"
+             [src]="imagesSrc[indexImage.next].name"/>
+        {{'PAGES.HOME.IMAGE_NEXT' | translate}}
+        <p>{{imagesSrc[indexImage.next]?.time | date: dateFormat}}</p>
+        <p>{{indexImage.next}}</p>
+      </div>
+
+    </div>
+
+    <div class="options-container">
+      <div class="container-speed-slideshow">
+        <label for="speed-slideshow"
+               class="label-speed-slideshow">{{'PAGES.HOME.LABEL_SPEED_SLIDESHOW' | translate}}</label>
+        <div>({{'PAGES.HOME.SUB_LABEL_SPEED' | translate}})</div>
+        <input id="speed-slideshow" class="input-speed-slideshow" type="number"
+               (input)="setSpeedSlideShow($event)"
+               [(ngModel)]="slideShow.speedSeconds">
+        <span class="bar"></span>
+      </div>
+
+      <div class="switch-container">
+        <span class="switch-label">{{'PAGES.HOME.LABEL_SORTING' | translate}}</span>
+        <span [ngClass]="isSortingOldToNew() ? 'old-to-recent' : 'recent-to-old'">{{slideShow.sortingState.valueOf()}}</span>
+        <label class="switch">
+          <input type="checkbox" (click)="inverseSorting()">
+          <span class="slider round"></span>
+        </label>
+      </div>
+    </div>
+
+    <div class="actions-container">
       <div *ngIf="isSlideshowRunning()" (click)="stopSlideshow()"
            class="home-button pause-button preview">
         {{'PAGES.HOME.SLIDESHOW.PAUSE' | translate}}
@@ -61,30 +82,14 @@
            class="home-button fullscreen-button preview">
         {{'PAGES.HOME.FULLSCREEN' | translate}}
       </div>
+    </div>
 
-      <div class="container-speed-slideshow">
-        <label for="speed-slideshow"
-               class="label-speed-slideshow">{{'PAGES.HOME.LABEL_SPEED_SLIDESHOW' | translate}}</label>
-        <input id="speed-slideshow" class="input-speed-slideshow" type="number" (input)="setSpeedSlideShow($event)"
-               [(ngModel)]="slideShow.speedSeconds">
-        <span class="bar"></span>
-      </div>
-
-      <div class="switch-container">
-        <span class="switch-label">{{'PAGES.HOME.LABEL_SORTING' | translate}}</span>
-        <span class="switch-sorting">{{slideShow.sortingState.valueOf()}}</span>
-        <label class="switch">
-          <input type="checkbox" (click)="inverseSorting()">
-          <span class="slider round"></span>
-        </label>
-      </div>
-
-    </ng-container>
   </ng-container>
 
 </div>
 
 <div id="image-fullscreen" *ngIf="electronService.isFullScreen()" class="fullscreen-container">
-  <img class="fullscreen-current-image" [alt]="'PAGES.HOME.IMAGE_CURRENT_ALT' | translate"
-       [src]="imagesSrc[indexImage.current]?.name"/>
+  <img class="fullscreen-current-image"
+       [alt]="'PAGES.HOME.IMAGE_CURRENT_ALT' | translate"
+       [src]="currentImageName"/>
 </div>
