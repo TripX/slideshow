@@ -2,14 +2,14 @@
 
   <app-circle></app-circle>
 
-  <div class="top-container" [ngClass]="currentImageName ? 'button-container' : ''">
+  <div class="top-container" [ngClass]="currentImageSource ? 'button-container' : ''">
     <label id="label-file-upload" for="file-upload" class="home-button"
-           [ngClass]="currentImageName ? 'preview' : ''">
+           [ngClass]="currentImageSource ? 'preview' : ''">
 
-      <ng-container *ngIf="!currentImageName">
+      <ng-container *ngIf="!currentImageSource">
         {{'PAGES.HOME.LABEL_UPLOAD_FILE' | translate}}
       </ng-container>
-      <ng-container *ngIf="currentImageName">
+      <ng-container *ngIf="currentImageSource">
         {{'PAGES.HOME.LABEL_UPLOAD_OTHER_FILE' | translate}}
       </ng-container>
 
@@ -17,11 +17,12 @@
     <input id="file-upload" type="file" webkitdirectory (change)="selectFolder($event)"/>
   </div>
 
-  <ng-container *ngIf="currentImageName">
+  <ng-container *ngIf="currentImageSource">
 
     <div class="preview-container">
       <div class="image-container">
-        <img class="previous-image" [alt]="'PAGES.HOME.IMAGE_CURRENT_ALT' | translate"
+        <img class="previous-image"
+             [alt]="'PAGES.HOME.IMAGE_CURRENT_ALT' | translate"
              [src]="imagesSrc[indexImage.previous]?.name"/>
         {{'PAGES.HOME.IMAGE_PREVIOUS' | translate}}
         <p>{{imagesSrc[indexImage.previous]?.time | date: dateFormat}}</p>
@@ -29,15 +30,17 @@
       </div>
 
       <div class="image-container">
-        <img class="current-image" [alt]="'PAGES.HOME.IMAGE_CURRENT_ALT' | translate"
-             [src]="currentImageName"/>
+        <img class="current-image"
+             [alt]="'PAGES.HOME.IMAGE_CURRENT_ALT' | translate"
+             [src]="currentImageSource"/>
         {{'PAGES.HOME.IMAGE_CURRENT' | translate}}
         <p>{{imagesSrc[indexImage.current]?.time | date: dateFormat}}</p>
         <p>{{indexImage.current}}</p>
       </div>
 
       <div class="image-container">
-        <img class="next-image" [alt]="'PAGES.HOME.IMAGE_CURRENT_ALT' | translate"
+        <img class="next-image"
+             [alt]="'PAGES.HOME.IMAGE_CURRENT_ALT' | translate"
              [src]="imagesSrc[indexImage.next].name"/>
         {{'PAGES.HOME.IMAGE_NEXT' | translate}}
         <p>{{imagesSrc[indexImage.next]?.time | date: dateFormat}}</p>
@@ -91,5 +94,5 @@
 <div id="image-fullscreen" *ngIf="electronService.isFullScreen()" class="fullscreen-container">
   <img class="fullscreen-current-image"
        [alt]="'PAGES.HOME.IMAGE_CURRENT_ALT' | translate"
-       [src]="currentImageName"/>
+       [src]="currentImageSource"/>
 </div>

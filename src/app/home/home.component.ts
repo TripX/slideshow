@@ -66,11 +66,10 @@ export class HomeComponent implements OnInit {
     this.electronService.preventDisplayToSleep();
   }
 
-  get currentImageName(): string {
+  get currentImageSource(): string {
     return this.imagesSrc[this.indexImage.current]?.name
   };
 
-  // TODO re-vérfier l'ajout d'image pendant que le diapo tourne
   selectFolder(event: Event) {
     const target = event.target as HTMLInputElement;
     if (target && target.files && target.files.length > 0 && target.files[0].path) {
@@ -94,7 +93,7 @@ export class HomeComponent implements OnInit {
           const fullPath = pathFolder + file.name;
           return {
             name: 'file:///' + fullPath,
-            time: this.electronService.fs.statSync(fullPath).mtime.getTime()
+            time: this.electronService.fs.statSync(fullPath).birthtimeMs
           }
         });
     };
@@ -118,7 +117,6 @@ export class HomeComponent implements OnInit {
       } else {
         this.imagesSrc = pipe(getFilesProperties, sortFromRecentToOld)(loadedFiles);
       }
-      console.log("after", this.imagesSrc.length);
     }, 500);
   }
 
