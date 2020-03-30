@@ -49,11 +49,8 @@ export class HomeComponent implements OnInit {
   constructor(public electronService: ElectronService) {
     this.imagesSrc = [];
 
-    this.indexImage = {
-      previous: 0,
-      current: 1,
-      next: 2
-    };
+    this.indexImage = this.resetImageIndexes();
+
     this.slideShow = {
       state: ESlideshowState.STOPPED,
       sortingState: ESortingState.OLD_TO_NEW,
@@ -74,10 +71,12 @@ export class HomeComponent implements OnInit {
     const target = event.target as HTMLInputElement;
     if (target && target.files && target.files.length > 0 && target.files[0].path) {
       this.startLoadingFolder(target.files[0].path);
-      this.startShowingSlideshow(false);
     } else {
-      console.error('Error event from selectFolder', event);
+      console.warn('No images', event);
     }
+
+    this.startShowingSlideshow(false);
+
   }
 
   private startLoadingFolder(chosenFilePath: string) {
@@ -165,6 +164,14 @@ export class HomeComponent implements OnInit {
     }
   }
 
+  resetImageIndexes(): IIndexImage {
+    return {
+      previous: 0,
+      current: 1,
+      next: 2
+    };
+  }
+
   setSpeedSlideShow(event: Event) {
     if (event && event.target) {
       const newSpeed = (event.target as HTMLInputElement).valueAsNumber;
@@ -191,7 +198,8 @@ export class HomeComponent implements OnInit {
   }
 
   inverseSorting() {
-    this.slideShow.sortingState === ESortingState.NEW_TO_OLD ? this.slideShow.sortingState = ESortingState.OLD_TO_NEW : this.slideShow.sortingState = ESortingState.NEW_TO_OLD
+    this.slideShow.sortingState === ESortingState.NEW_TO_OLD ? this.slideShow.sortingState = ESortingState.OLD_TO_NEW : this.slideShow.sortingState = ESortingState.NEW_TO_OLD;
+    this.indexImage = this.resetImageIndexes();
   }
 
   isSortingOldToNew() {

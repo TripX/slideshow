@@ -1,5 +1,5 @@
 <div class="circles-container">
-  <div *ngFor="let circleElement of listOfcircleElement" class="circle-container">
-    <div class="circle"></div>
+  <div *ngFor="let circleElement of circleElements()" class="circle-container">
+    <div [id]="circleElement" class="circle"></div>
   </div>
 </div>

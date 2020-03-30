@@ -14,7 +14,9 @@
       "SLIDESHOW": {
         "PAUSE": "Arrêter le diaporama",
         "START": "Démarrer le diaporama"
-      }
+      },
+      "INSTRUCTION_ECHAP": "Touche ECHAP : Sortir du plein écran",
+      "INSTRUCTION_DIRECTIONS": "Touche GAUCHE / DROITE : Afficher Précédente / Prochaine photo"
     }
   }
 }

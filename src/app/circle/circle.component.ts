@@ -7,6 +7,8 @@ import {Component} from '@angular/core';
 })
 export class CircleComponent {
 
-  private listOfcircleElement = Array(100).map((x, i) => i);
+  circleElements(): Array<Number> {
+    return Array(100).map((x, i) => i)
+  };
 
 }

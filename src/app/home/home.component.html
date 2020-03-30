@@ -26,7 +26,6 @@
              [src]="imagesSrc[indexImage.previous]?.name"/>
         {{'PAGES.HOME.IMAGE_PREVIOUS' | translate}}
         <p>{{imagesSrc[indexImage.previous]?.time | date: dateFormat}}</p>
-        <p>{{indexImage.previous}}</p>
       </div>
 
       <div class="image-container">
@@ -35,7 +34,6 @@
              [src]="currentImageSource"/>
         {{'PAGES.HOME.IMAGE_CURRENT' | translate}}
         <p>{{imagesSrc[indexImage.current]?.time | date: dateFormat}}</p>
-        <p>{{indexImage.current}}</p>
       </div>
 
       <div class="image-container">
@@ -44,7 +42,6 @@
              [src]="imagesSrc[indexImage.next].name"/>
         {{'PAGES.HOME.IMAGE_NEXT' | translate}}
         <p>{{imagesSrc[indexImage.next]?.time | date: dateFormat}}</p>
-        <p>{{indexImage.next}}</p>
       </div>
 
     </div>
@@ -62,7 +59,8 @@
 
       <div class="switch-container">
         <span class="switch-label">{{'PAGES.HOME.LABEL_SORTING' | translate}}</span>
-        <span [ngClass]="isSortingOldToNew() ? 'old-to-recent' : 'recent-to-old'">{{slideShow.sortingState.valueOf()}}</span>
+        <span
+          [ngClass]="isSortingOldToNew() ? 'old-to-recent' : 'recent-to-old'">{{slideShow.sortingState.valueOf()}}</span>
         <label class="switch">
           <input type="checkbox" (click)="inverseSorting()">
           <span class="slider round"></span>
@@ -86,6 +84,9 @@
         {{'PAGES.HOME.FULLSCREEN' | translate}}
       </div>
     </div>
+
+    <ul>{{'PAGES.HOME.INSTRUCTION_ECHAP' | translate}}</ul>
+    <ul>{{'PAGES.HOME.INSTRUCTION_DIRECTIONS' | translate}}</ul>
 
   </ng-container>
 
